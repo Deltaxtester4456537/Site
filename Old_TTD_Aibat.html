@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TTD OLD — Скрипты</title>
+<style>
+  :root{
+    --red:#ff1e3c;
+    --red-glow:rgba(255,30,60,.55);
+    --black:#0a0a0c;
+    --dark:#121216;
+    --card:#17171c;
+    --txt:#f2f2f5;
+    --muted:#8a8a95;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Inter,system-ui,sans-serif}
+  body{
+    background:var(--black);color:var(--txt);
+    min-height:100vh;overflow-x:hidden;position:relative;
+  }
+
+  /* ===== ФОН ===== */
+  .bg-grid{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,30,60,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,30,60,.06) 1px, transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(circle at 50% 30%, #000 0%, transparent 75%);
+    animation:gridMove 18s linear infinite;
+  }
+  @keyframes gridMove{from{background-position:0 0}to{background-position:44px 44px}}
+
+  .orb{position:fixed;border-radius:50%;filter:blur(90px);z-index:0;pointer-events:none;opacity:.55}
+  .orb.r1{width:420px;height:420px;background:var(--red);top:-120px;left:-120px;animation:float1 12s ease-in-out infinite}
+  .orb.r2{width:360px;height:360px;background:#7a0016;bottom:-140px;right:-100px;animation:float2 14s ease-in-out infinite}
+  @keyframes float1{50%{transform:translate(80px,60px) scale(1.15)}}
+  @keyframes float2{50%{transform:translate(-70px,-50px) scale(1.1)}}
+
+  /* ===== ШАПКА ===== */
+  .seller{
+    position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+    background:rgba(10,10,12,.65);
+    border-bottom:1px solid rgba(255,30,60,.25);
+    padding:14px 26px;display:flex;align-items:center;gap:14px;
+    animation:slideDown .8s cubic-bezier(.2,.9,.3,1.3) both;
+  }
+  @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  .seller-ava{
+    width:52px;height:52px;border-radius:50%;object-fit:cover;
+    border:2px solid var(--red);
+    box-shadow:0 0 0 3px rgba(255,30,60,.18),0 0 22px var(--red-glow);
+    animation:pulseAva 2.6s ease-in-out infinite;
+  }
+  @keyframes pulseAva{
+    0%,100%{box-shadow:0 0 0 3px rgba(255,30,60,.18),0 0 22px var(--red-glow)}
+    50%{box-shadow:0 0 0 6px rgba(255,30,60,.08),0 0 34px var(--red-glow)}
+  }
+  .seller-info{display:flex;flex-direction:column;gap:2px}
+  .seller-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .seller-row{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:700}
+  .seller-name{
+    background:linear-gradient(90deg,#fff,#ffb3be,#fff);
+    background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shine 4s linear infinite;
+  }
+  @keyframes shine{to{background-position:200% center}}
+
+  .verified{width:20px;height:20px;flex-shrink:0;filter:drop-shadow(0 0 6px var(--red-glow));
+    animation:tickPop .6s .6s cubic-bezier(.2,1.6,.4,1) both;}
+  @keyframes tickPop{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+  /* ===== КОНТЕНТ ===== */
+  .wrap{position:relative;z-index:2;max-width:920px;margin:0 auto;padding:70px 22px 100px}
+  .hero{text-align:center;margin-bottom:60px}
+  .hero h1{font-size:clamp(30px,6vw,58px);font-weight:800;line-height:1.08;letter-spacing:-.02em;
+    animation:riseIn .9s .15s cubic-bezier(.2,.9,.3,1) both;}
+  .hero h1 span{
+    background:linear-gradient(90deg,var(--red),#ff6b7f,var(--red));
+    background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shine 3s linear infinite;
+  }
+  .hero p{margin-top:16px;color:var(--muted);font-size:17px;
+    animation:riseIn .9s .3s cubic-bezier(.2,.9,.3,1) both;}
+  @keyframes riseIn{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  /* ===== КАРТОЧКИ ===== */
+  .grid{display:grid;gap:24px;grid-template-columns:1fr;margin-top:40px}
+  @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+
+  .card{
+    position:relative;
+    background:linear-gradient(160deg,var(--card),var(--dark));
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:22px;padding:28px 26px 30px;overflow:hidden;
+    transition:transform .35s cubic-bezier(.2,.9,.3,1.2),border-color .35s,box-shadow .35s;
+    animation:cardIn .9s cubic-bezier(.2,.9,.3,1) both;
+  }
+  .card:nth-child(1){animation-delay:.35s}
+  .card:nth-child(2){animation-delay:.5s}
+  @keyframes cardIn{from{transform:translateY(40px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+
+  .card::before{
+    content:"";position:absolute;inset:-2px;z-index:-1;border-radius:24px;
+    background:conic-gradient(from 0deg,transparent 0 70%,var(--red) 85%,transparent 100%);
+    opacity:0;transition:opacity .4s;animation:spin 4s linear infinite;
+  }
+  .card:hover::before{opacity:.9}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .card::after{content:"";position:absolute;inset:1px;border-radius:21px;
+    background:linear-gradient(160deg,var(--card),var(--dark));z-index:-1;}
+  .card:hover{transform:translateY(-8px);border-color:rgba(255,30,60,.45);
+    box-shadow:0 24px 60px -20px rgba(255,30,60,.45);}
+
+  .card-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--red);background:rgba(255,30,60,.1);
+    border:1px solid rgba(255,30,60,.3);
+    padding:5px 11px;border-radius:999px;margin-bottom:16px;
+  }
+  .card-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red)}
+  .card h2{font-size:21px;font-weight:700;margin-bottom:10px;line-height:1.3}
+  .card p{color:var(--muted);font-size:14.5px;line-height:1.55;margin-bottom:22px}
+
+  /* ===== КНОПКА ===== */
+  .dl{
+    display:inline-flex;align-items:center;gap:10px;width:100%;justify-content:center;
+    padding:14px 20px;border-radius:14px;
+    background:linear-gradient(135deg,var(--red),#c4001d);
+    color:#fff;font-weight:700;font-size:15px;text-decoration:none;
+    border:none;cursor:pointer;position:relative;overflow:hidden;
+    transition:transform .25s,box-shadow .25s;
+    box-shadow:0 8px 24px -6px var(--red-glow);
+  }
+  .dl:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 14px 34px -6px var(--red-glow)}
+  .dl:active{transform:scale(.98)}
+  .dl::after{
+    content:"";position:absolute;top:0;left:-150%;width:60%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);
+    transform:skewX(-20deg);transition:left .6s;
+  }
+  .dl:hover::after{left:150%}
+  .dl svg{width:18px;height:18px;flex-shrink:0}
+  .dl .ico{animation:bob 1.6s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(3px)}}
+
+  /* ===== ТОСТ "УСПЕШНАЯ ПОКУПКА!" ===== */
+  .toast{
+    position:fixed;top:90px;left:50%;transform:translate(-50%,-30px);
+    z-index:200;pointer-events:none;
+    display:flex;align-items:center;gap:10px;
+    padding:13px 22px;border-radius:14px;
+    background:linear-gradient(135deg,#1a1a20,#0e0e12);
+    border:1px solid rgba(255,30,60,.6);
+    box-shadow:0 16px 40px -10px rgba(255,30,60,.55),0 0 0 1px rgba(255,30,60,.15) inset;
+    font-weight:700;font-size:15px;color:#fff;white-space:nowrap;
+    opacity:0;transition:opacity .35s,transform .45s cubic-bezier(.2,1.4,.4,1);
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast svg{width:20px;height:20px;flex-shrink:0;filter:drop-shadow(0 0 6px var(--red-glow))}
+
+  /* ===== МОДАЛКА ===== */
+  .modal-back{
+    position:fixed;inset:0;z-index:300;
+    background:rgba(5,5,8,.78);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s;
+  }
+  .modal-back.show{opacity:1;visibility:visible}
+
+  .modal{
+    position:relative;max-width:440px;width:100%;
+    background:linear-gradient(160deg,#1b1b22,#0d0d11);
+    border:1px solid rgba(255,30,60,.35);
+    border-radius:24px;padding:36px 30px 30px;text-align:center;
+    box-shadow:0 30px 80px -20px rgba(255,30,60,.4);
+    transform:scale(.85) translateY(30px);opacity:0;
+    transition:transform .45s cubic-bezier(.2,1.5,.4,1),opacity .35s;
+  }
+  .modal-back.show .modal{transform:scale(1) translateY(0);opacity:1}
+
+  .modal-icon{
+    width:78px;height:78px;margin:0 auto 20px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle,rgba(255,30,60,.25),rgba(255,30,60,.05));
+    border:2px solid var(--red);
+    box-shadow:0 0 30px var(--red-glow),0 0 0 6px rgba(255,30,60,.1);
+    animation:popIcon .55s .1s cubic-bezier(.2,1.7,.4,1) both;
+  }
+  @keyframes popIcon{from{transform:scale(0) rotate(-60deg)}to{transform:scale(1) rotate(0)}}
+  .modal-icon svg{width:40px;height:40px;filter:drop-shadow(0 0 8px var(--red-glow))}
+
+  .modal h3{font-size:24px;font-weight:800;margin-bottom:12px;
+    background:linear-gradient(90deg,#fff,#ffb3be,#fff);
+    background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shine 3s linear infinite;}
+  .modal p{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:26px}
+  .modal p b{color:#fff}
+
+  .modal-btns{display:flex;flex-direction:column;gap:10px}
+  .btn-confirm{
+    padding:14px 20px;border-radius:14px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--red),#c4001d);
+    color:#fff;font-weight:700;font-size:15px;
+    box-shadow:0 10px 26px -8px var(--red-glow);
+    transition:transform .25s,box-shadow .25s;
+  }
+  .btn-confirm:hover{transform:translateY(-2px);box-shadow:0 16px 36px -8px var(--red-glow)}
+  .btn-confirm:active{transform:scale(.97)}
+  .btn-cancel{
+    padding:12px 20px;border-radius:14px;cursor:pointer;
+    background:transparent;color:var(--muted);font-weight:600;font-size:14px;
+    border:1px solid rgba(255,255,255,.1);
+    transition:color .25s,border-color .25s,background .25s;
+  }
+  .btn-cancel:hover{color:#fff;border-color:rgba(255,30,60,.5);background:rgba(255,30,60,.06)}
+
+  .modal-close{
+    position:absolute;top:12px;right:14px;width:32px;height:32px;
+    background:none;border:none;cursor:pointer;color:var(--muted);
+    font-size:22px;line-height:1;border-radius:8px;
+    transition:color .2s,background .2s;
+  }
+  .modal-close:hover{color:#fff;background:rgba(255,30,60,.15)}
+
+  /* ===== ПОДВАЛ ===== */
+  footer{
+    position:relative;z-index:2;text-align:center;
+    padding:30px 20px 40px;color:var(--muted);font-size:13px;
+    border-top:1px solid rgba(255,255,255,.05);
+  }
+  footer b{color:var(--red)}
+  .credit{display:block;margin-top:10px;font-size:11px;color:#55555f;letter-spacing:.03em}
+
+  /* ===== ПРЕЛОАДЕР БУТТОНА ===== */
+  .dl.loading{pointer-events:none;opacity:.85}
+  .dl.loading svg{animation:spin 1s linear infinite}
+
+  @media(max-width:480px){
+    .seller{padding:12px 16px}
+    .seller-ava{width:44px;height:44px}
+    .seller-row{font-size:15px}
+    .wrap{padding:50px 16px 80px}
+    .modal{padding:30px 22px 24px}
+    .modal h3{font-size:20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="orb r1"></div>
+<div class="orb r2"></div>
+
+<!-- ===== ПРОДАВЕЦ ===== -->
+<header class="seller">
+  <img class="seller-ava"
+       src="https://sapi.playerok.com/auth/img/CNILI3c1N9JzYyLxqJxb4CuXn8odv95mfqD_u8Hihho/rs:fill:0:360:1/g:no/quality:99/czM6Ly9wbC1hdXRoL3NlbGVjdGVsL2ltYWdlcy9hdmF0YXJzLzAxYTBkNzllLTY4ZmQtN2Y5Mi1iNTVkLTM0ZDViZDc2YThlMS5wbmc.jpg"
+       alt="avatar">
+  <div class="seller-info">
+    <span class="seller-label">Продавец</span>
+    <div class="seller-row">
+      <span class="seller-name">ytbskibidiyura1</span>
+      <svg class="verified" viewBox="0 0 24 24" fill="none">
+        <path d="M12 1.5l2.6 2.2 3.4-.4 1.2 3.2 3.1 1.5-1 3.3 1 3.3-3.1 1.5-1.2 3.2-3.4-.4L12 22.5l-2.6-2.2-3.4.4-1.2-3.2-3.1-1.5 1-3.3-1-3.3 3.1-1.5 1.2-3.2 3.4.4L12 1.5z"
+              fill="#ff1e3c"/>
+        <path d="M8 12.2l2.6 2.6L16 9.4" stroke="#fff" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- ===== КОНТЕНТ ===== -->
+<main class="wrap">
+  <section class="hero">
+    <h1>Скрипты <span>TTD OLD</span></h1>
+    <p>Чёрно-красная система. Скачивай файлы .rbxl ниже</p>
+  </section>
+
+  <div class="grid">
+
+    <!-- Карточка 1 -->
+    <article class="card">
+      <span class="card-tag">Система</span>
+      <h2>Система уйбута TTD OLD</h2>
+      <p>Основной файл системы. Скачать <code>.rbxl</code> и открыть в Roblox Studio.</p>
+      <a class="dl" href="система уйбута ттд олд.rbxl" download data-file="система уйбута ттд олд.rbxl">
+        <svg viewBox="0 0 24 24" fill="none" class="ico">
+          <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Скачать .rbxl
+      </a>
+    </article>
+
+    <!-- Карточка 2 -->
+    <article class="card">
+      <span class="card-tag">Катки</span>
+      <h2>Система уйбута TTD OLD Катки</h2>
+      <p>Файл с катками. Скачать <code>.rbxl</code> и импортировать в проект.</p>
+      <a class="dl" href="система уйбута ттд олд катки.rbxl" download data-file="система уйбута ттд олд катки.rbxl">
+        <svg viewBox="0 0 24 24" fill="none" class="ico">
+          <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Скачать .rbxl
+      </a>
+    </article>
+
+  </div>
+</main>
+
+<!-- ===== ПОДВАЛ ===== -->
+<footer>
+  © <b>ytbskibidiyura1</b> — TTD OLD System
+  <span class="credit">designed by gemer777</span>
+</footer>
+
+<!-- ===== ТОСТ "УСПЕШНАЯ ПОКУПКА!" ===== -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none">
+    <path d="M12 2l2.6 2.2 3.4-.4 1.2 3.2 3.1 1.5-1 3.3 1 3.3-3.1 1.5-1.2 3.2-3.4-.4L12 22l-2.6-2.2-3.4.4-1.2-3.2-3.1-1.5 1-3.3-1-3.3 3.1-1.5 1.2-3.2 3.4.4L12 2z" fill="#ff1e3c"/>
+    <path d="M8 12.2l2.6 2.6L16 9.4" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  Успешная покупка!
+</div>
+
+<!-- ===== МОДАЛКА ===== -->
+<div class="modal-back" id="modal">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="Закрыть">×</button>
+
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l2.6 2.2 3.4-.4 1.2 3.2 3.1 1.5-1 3.3 1 3.3-3.1 1.5-1.2 3.2-3.4-.4L12 22l-2.6-2.2-3.4.4-1.2-3.2-3.1-1.5 1-3.3-1-3.3 3.1-1.5 1.2-3.2 3.4.4L12 2z" fill="#ff1e3c"/>
+        <path d="M8 12.2l2.6 2.6L16 9.4" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h3>Спасибо за покупку!</h3>
+    <p>Теперь <b>подтвердите покупку</b> и оставьте отзыв :)</p>
+
+    <div class="modal-btns">
+      <button class="btn-confirm" id="btnConfirm">Подтвердить покупку</button>
+      <button class="btn-cancel" id="btnCancel">Оставить отзыв позже</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const toast = document.getElementById('toast');
+  const modal = document.getElementById('modal');
+  const modalClose = document.getElementById('modalClose');
+  const btnConfirm = document.getElementById('btnConfirm');
+  const btnCancel = document.getElementById('btnCancel');
+  const dlButtons = document.querySelectorAll('.dl');
+  let toastTimer = null;
+
+  function showToast(){
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove('show'), 2400);
+  }
+
+  function openModal(){
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  dlButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      // "Успешная покупка!"
+      showToast();
+      // лёгкий фидбек на кнопке
+      btn.classList.add('loading');
+      setTimeout(()=>btn.classList.remove('loading'), 1400);
+      // модалка после короткой задержки
+      setTimeout(openModal, 650);
+    });
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  btnCancel.addEventListener('click', closeModal);
+  modal.addEventListener('click', e=>{ if(e.target === modal) closeModal(); });
+
+  btnConfirm.addEventListener('click', ()=>{
+    // Здесь можно добавить переход на форму отзыва / оплату
+    btnConfirm.textContent = '✓ Покупка подтверждена';
+    btnConfirm.style.background = 'linear-gradient(135deg,#0f9d58,#0a7a42)';
+    btnConfirm.disabled = true;
+    btnConfirm.style.cursor = 'default';
+    setTimeout(closeModal, 1200);
+  });
+
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape') closeModal();
+  });
+</script>
+
+</body>
+</html>
