@@ -28,6 +28,7 @@
       linear-gradient(90deg, rgba(255,30,60,.06) 1px, transparent 1px);
     background-size:44px 44px;
     mask-image:radial-gradient(circle at 50% 30%, #000 0%, transparent 75%);
+    -webkit-mask-image:radial-gradient(circle at 50% 30%, #000 0%, transparent 75%);
     animation:gridMove 18s linear infinite;
   }
   @keyframes gridMove{from{background-position:0 0}to{background-position:44px 44px}}
@@ -41,6 +42,7 @@
   /* ===== ШАПКА ===== */
   .seller{
     position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
     background:rgba(10,10,12,.65);
     border-bottom:1px solid rgba(255,30,60,.25);
     padding:14px 26px;display:flex;align-items:center;gap:14px;
@@ -127,7 +129,7 @@
   .card h2{font-size:21px;font-weight:700;margin-bottom:10px;line-height:1.3}
   .card p{color:var(--muted);font-size:14.5px;line-height:1.55;margin-bottom:22px}
 
-  /* ===== КНОПКА ===== */
+  /* ===== КНОПКА СКАЧИВАНИЯ ===== */
   .dl{
     display:inline-flex;align-items:center;gap:10px;width:100%;justify-content:center;
     padding:14px 20px;border-radius:14px;
@@ -148,6 +150,8 @@
   .dl svg{width:18px;height:18px;flex-shrink:0}
   .dl .ico{animation:bob 1.6s ease-in-out infinite}
   @keyframes bob{50%{transform:translateY(3px)}}
+  .dl.loading{pointer-events:none;opacity:.85}
+  .dl.loading svg{animation:spin 1s linear infinite}
 
   /* ===== ТОСТ "УСПЕШНАЯ ПОКУПКА!" ===== */
   .toast{
@@ -168,6 +172,7 @@
   .modal-back{
     position:fixed;inset:0;z-index:300;
     background:rgba(5,5,8,.78);backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
     display:flex;align-items:center;justify-content:center;padding:20px;
     opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s;
   }
@@ -238,10 +243,6 @@
   footer b{color:var(--red)}
   .credit{display:block;margin-top:10px;font-size:11px;color:#55555f;letter-spacing:.03em}
 
-  /* ===== ПРЕЛОАДЕР БУТТОНА ===== */
-  .dl.loading{pointer-events:none;opacity:.85}
-  .dl.loading svg{animation:spin 1s linear infinite}
-
   @media(max-width:480px){
     .seller{padding:12px 16px}
     .seller-ava{width:44px;height:44px}
@@ -267,6 +268,7 @@
     <span class="seller-label">Продавец</span>
     <div class="seller-row">
       <span class="seller-name">ytbskibidiyura1</span>
+      <!-- Красная галочка (как Telegram, но красная) -->
       <svg class="verified" viewBox="0 0 24 24" fill="none">
         <path d="M12 1.5l2.6 2.2 3.4-.4 1.2 3.2 3.1 1.5-1 3.3 1 3.3-3.1 1.5-1.2 3.2-3.4-.4L12 22.5l-2.6-2.2-3.4.4-1.2-3.2-3.1-1.5 1-3.3-1-3.3 3.1-1.5 1.2-3.2 3.4.4L12 1.5z"
               fill="#ff1e3c"/>
@@ -291,7 +293,7 @@
       <span class="card-tag">Система</span>
       <h2>Система уйбута TTD OLD</h2>
       <p>Основной файл системы. Скачать <code>.rbxl</code> и открыть в Roblox Studio.</p>
-      <a class="dl" href="система уйбута ттд олд.rbxl" download data-file="система уйбута ттд олд.rbxl">
+      <a class="dl" href="система уйбута ттд олд.rbxl" download>
         <svg viewBox="0 0 24 24" fill="none" class="ico">
           <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
                 stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -305,7 +307,7 @@
       <span class="card-tag">Катки</span>
       <h2>Система уйбута TTD OLD Катки</h2>
       <p>Файл с катками. Скачать <code>.rbxl</code> и импортировать в проект.</p>
-      <a class="dl" href="система уйбута ттд олд катки.rbxl" download data-file="система уйбута ттд олд катки.rbxl">
+      <a class="dl" href="система уйбута ттд олд катки.rbxl" download>
         <svg viewBox="0 0 24 24" fill="none" class="ico">
           <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
                 stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -380,13 +382,10 @@
 
   dlButtons.forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      // "Успешная покупка!"
-      showToast();
-      // лёгкий фидбек на кнопке
+      showToast();                                    // "Успешная покупка!"
       btn.classList.add('loading');
       setTimeout(()=>btn.classList.remove('loading'), 1400);
-      // модалка после короткой задержки
-      setTimeout(openModal, 650);
+      setTimeout(openModal, 650);                     // модалка чуть позже
     });
   });
 
@@ -394,13 +393,10 @@
   btnCancel.addEventListener('click', closeModal);
   modal.addEventListener('click', e=>{ if(e.target === modal) closeModal(); });
 
+  // ✅ Подтверждение покупки → переход на чаты Playerok
   btnConfirm.addEventListener('click', ()=>{
-    // Здесь можно добавить переход на форму отзыва / оплату
-    btnConfirm.textContent = '✓ Покупка подтверждена';
-    btnConfirm.style.background = 'linear-gradient(135deg,#0f9d58,#0a7a42)';
-    btnConfirm.disabled = true;
-    btnConfirm.style.cursor = 'default';
-    setTimeout(closeModal, 1200);
+    window.open('https://playerok.com/chats', '_blank', 'noopener');
+    closeModal();
   });
 
   document.addEventListener('keydown', e=>{
